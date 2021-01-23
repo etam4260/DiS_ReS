@@ -220,6 +220,7 @@ for(i in 1:nrow(All_Projects)) {
     funding = as.numeric(All_Projects[i,"TotalFunds"])
     end = j + nrow(fips)
     
+    
     #Some projects may have NA funding which likely means that they received
     #0 dollars.
     if(is.na(funding)) {
@@ -238,22 +239,34 @@ for(i in 1:nrow(All_Projects)) {
     #The outer while loop keeps track of how many rows that need to be edited 
     #based on the number of fips that this project has.
     while(j < end) {
-      
+
+    
       #For every year that this project is done, go to the respective
       #row in test_frame and column year and change its funding. "edge" years
       #get a different amount of funding.
       for(year in extract_lower_year:extract_upper_year) {
         CPI_ind = which(cf$year == 2020)
         
-        funds_for_each_pip = as.numeric(funds_for_each_pip)*as.numeric(cf[CPI_ind, "CPIAUCSL"])      
+        this_funds = as.numeric(funds_for_each_pip)*as.numeric(cf[CPI_ind, "CPIAUCSL"])      
 
         this_year = toString(year)
+        
+        if(j == 12333 && year == 2006) {
+          print(funding)
+          print(nrow(fips))
+          print(funds_for_each_pip)
+          print(this_funds)
+          print(as.numeric(test_frame[j, c(this_year)]))
+          print(as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_first_year*this_funds))
+        }
+        print(as.numeric(test_frame[12333, c(yearly)]))
+        
         if(year == extract_lower_year) {
-          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_first_year*funds_for_each_pip)
+          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_first_year*this_funds)
         } else if(year == extract_upper_year) {
-          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_last_year*funds_for_each_pip)
+          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_last_year*this_funds)
         } else {
-          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_every_other_year*funds_for_each_pip)
+          test_frame[j, c(this_year)] = as.numeric(test_frame[j, c(this_year)]) + as.numeric(percentage_for_every_other_year*this_funds)
         }
         format(test_frame[j, c(this_year)], scientific = FALSE)
       }
